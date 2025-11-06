@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyDeck - Progress Tracker</title>
+    <link rel="icon" href="studydeck.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: #1e293b;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            padding: 30px 25px;
+            font-size: 24px;
+            font-weight: bold;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo img {
+            width: 35px;
+            height: 35px;
+            object-fit: contain;
+        }
+
+        .logo-text {
+            color: white;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+
+        .nav-item.active {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+            border-left: 3px solid #3b82f6;
+        }
+
+        .nav-item i {
+            width: 25px;
+            margin-right: 15px;
+            font-size: 18px;
+        }
+
+        /* AI & Math Dropdowns */
+        .ai-dropdown, .math-dropdown {
+            position: relative;
+        }
+
+        .ai-dropdown .nav-item, .math-dropdown .nav-item {
+            padding: 15px 25px;
+        }
+
+        .dropdown-header {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .dropdown-header .icon-text {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        .dropdown-header i.fa-brain,
+        .dropdown-header i.fa-calculator {
+            width: 25px;
+            margin-right: 15px;
+            font-size: 18px;
+        }
+
+        .dropdown-header .fa-chevron-down {
+            font-size: 12px;
+            transition: transform 0.3s;
+            margin-left: auto;
+        }
+
+        .ai-dropdown.open .fa-chevron-down,
+        .math-dropdown.open .fa-chevron-down {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            opacity: 0;
+        }
+
+        .ai-dropdown.open .dropdown-content,
+        .math-dropdown.open .dropdown-content {
+            max-height: 350px;
+            opacity: 1;
+        }
+
+        .dropdown-item {
+            padding: 12px 25px 12px 55px;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            border-left: 3px solid transparent;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(59, 130, 246, 0.08);
+            color: #3b82f6;
+            padding-left: 60px;
+            border-left-color: #3b82f6;
+        }
+
+        .dropdown-item i {
+            width: 18px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        /* User Profile */
+        .user-profile {
+            padding: 20px 25px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .user-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #1e293b;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .signout-btn {
+            background: rgba(239, 68, 68, 0.1);
+            border: none;
+            color: #ef4444;
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .signout-btn:hover {
+            background: #ef4444;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .signout-btn i {
+            font-size: 16px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .header {
+            background: white;
+            padding: 25px 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #1e293b;
+        }
+
+        .add-task-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .add-task-btn:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        /* Kanban Board */
+        .kanban-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .kanban-column {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            min-height: 500px;
+        }
+
+        .column-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .column-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .column-count {
+            background: #f1f5f9;
+            color: #64748b;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .column-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .column-icon.todo {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .column-icon.progress {
+            background: rgba(249, 115, 22, 0.1);
+            color: #f97316;
+        }
+
+        .column-icon.completed {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+
+        .tasks-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            min-height: 400px;
+        }
+
+        .task-card {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: grab;
+            transition: all 0.3s;
+        }
+
+        .task-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.1);
+        }
+
+        .task-card.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .task-title {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 15px;
+            flex: 1;
+        }
+
+        .task-menu {
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 4px;
+            transition: color 0.3s;
+        }
+
+        .task-menu:hover {
+            color: #3b82f6;
+        }
+
+        .task-description {
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .task-class {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .task-class.math {
+            background: rgba(139, 92, 246, 0.1);
+            color: #8b5cf6;
+        }
+
+        .task-class.science {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+
+        .task-class.english {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+
+        .task-class.history {
+            background: rgba(249, 115, 22, 0.1);
+            color: #f97316;
+        }
+
+        .task-class.other {
+            background: rgba(100, 116, 139, 0.1);
+            color: #64748b;
+        }
+
+        .task-priority {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .task-priority.high {
+            color: #ef4444;
+        }
+
+        .task-priority.medium {
+            color: #f59e0b;
+        }
+
+        .task-priority.low {
+            color: #3b82f6;
+        }
+
+        .task-due {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+        }
+
+        .close-modal:hover {
+            color: #1e293b;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .submit-btn:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+            transition: all 0.3s;
+        }
+
+        .mobile-menu-toggle:active {
+            transform: scale(0.95);
+        }
+
+        .mobile-menu-toggle i {
+            font-size: 20px;
+        }
+
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .mobile-overlay.active {
+            opacity: 1;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -280px;
+                top: 0;
+                bottom: 0;
+                z-index: 999;
+                transition: left 0.3s ease;
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .mobile-menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .mobile-overlay {
+                display: block;
+            }
+
+            .main-content {
+                width: 100%;
+            }
+
+            .header {
+                padding: 20px 20px 20px 75px;
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .kanban-board {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .kanban-column {
+                min-height: auto;
+            }
+
+            .modal-content {
+                padding: 20px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 18px;
+            }
+
+            .add-task-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" onclick="toggleMobileMenu()"></div>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <img src="studydeck.png" alt="StudyDeck">
+                <span class="logo-text">StudyDeck</span>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                
+                <div class="nav-item">
+                    <i class="fas fa-layer-group"></i>
+                    <span>Flashcards</span>
+                </div>
+                
+                <div class="nav-item">
+                    <i class="fas fa-list-check"></i>
+                    <span>To-Do List</span>
+                </div>
+                
+                <div class="nav-item">
+                    <i class="fas fa-calendar-days"></i>
+                    <span>Study Schedule</span>
+                </div>
+                
+                <div class="nav-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Pomodoro Timer</span>
+                </div>
+                
+                <div class="nav-item">
+                    <i class="fas fa-book-open"></i>
+                    <span>Take Notes</span>
+                </div>
+                
+                <a href="progress-tracker.html" class="nav-item active">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Progress Tracker</span>
+                </a>
+                
+                <div class="ai-dropdown">
+                    <div class="nav-item" onclick="toggleDropdown()">
+                        <div class="dropdown-header">
+                            <div class="icon-text">
+                                <i class="fas fa-brain"></i>
+                                <span>AI Tools</span>
+                            </div>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </div>
+                    <div class="dropdown-content">
+                        <div class="dropdown-item">
+                            <i class="fas fa-spell-check"></i>
+                            <span>AI Proofread</span>
+                        </div>
+                        <div class="dropdown-item">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>AI QuickGrader</span>
+                        </div>
+                        <div class="dropdown-item">
+                            <i class="fas fa-lightbulb"></i>
+                            <span>Study Suggestions</span>
+                        </div>
+                        <div class="dropdown-item">
+                            <i class="fas fa-language"></i>
+                            <span>AI Translator</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="math-dropdown">
+                    <div class="nav-item" onclick="toggleMathDropdown()">
+                        <div class="dropdown-header">
+                            <div class="icon-text">
+                                <i class="fas fa-calculator"></i>
+                                <span>Math Tools</span>
+                            </div>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </div>
+                    <div class="dropdown-content">
+                        <div class="dropdown-item">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Graphing Calculator</span>
+                        </div>
+                        <div class="dropdown-item">
+                            <i class="fas fa-calculator"></i>
+                            <span>Scientific Calculator</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="nav-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </div>
+            </nav>
+            
+            <div class="user-profile">
+                <div class="user-avatar">
+                    AI
+                </div>
+                <div class="user-info">
+                    <div class="user-name">Ayham Issa</div>
+                    <span class="user-badge">
+                        <i class="fas fa-crown"></i> Premium
+                    </span>
+                </div>
+                <button class="signout-btn" onclick="handleSignout()" title="Sign Out">
+                    <i class="fas fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1><i class="fas fa-chart-line"></i> Progress Tracker</h1>
+                <button class="add-task-btn" onclick="openModal()">
+                    <i class="fas fa-plus"></i>
+                    Add New Task
+                </button>
+            </div>
+            
+            <div class="content">
+                <!-- Kanban Board -->
+                <div class="kanban-board">
+                    <!-- To Do Column -->
+                    <div class="kanban-column">
+                        <div class="column-header">
+                            <div class="column-title">
+                                <div class="column-icon todo">
+                                    <i class="fas fa-circle"></i>
+                                </div>
+                                To Do
+                            </div>
+                            <span class="column-count" id="todo-count">0</span>
+                        </div>
+                        <div class="tasks-container" id="todo-tasks" ondrop="drop(event)" ondragover="allowDrop(event)" data-status="todo">
+                            <!-- Tasks will be added here -->
+                        </div>
+                    </div>
+
+                    <!-- In Progress Column -->
+                    <div class="kanban-column">
+                        <div class="column-header">
+                            <div class="column-title">
+                                <div class="column-icon progress">
+                                    <i class="fas fa-spinner"></i>
+                                </div>
+                                In Progress
+                            </div>
+                            <span class="column-count" id="progress-count">0</span>
+                        </div>
+                        <div class="tasks-container" id="progress-tasks" ondrop="drop(event)" ondragover="allowDrop(event)" data-status="progress">
+                            <!-- Tasks will be added here -->
+                        </div>
+                    </div>
+
+                    <!-- Completed Column -->
+                    <div class="kanban-column">
+                        <div class="column-header">
+                            <div class="column-title">
+                                <div class="column-icon completed">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                Completed
+                            </div>
+                            <span class="column-count" id="completed-count">0</span>
+                        </div>
+                        <div class="tasks-container" id="completed-tasks" ondrop="drop(event)" ondragover="allowDrop(event)" data-status="completed">
+                            <!-- Tasks will be added here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Task Modal -->
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add New Task</h2>
+                <button class="close-modal" onclick="closeModal()">×</button>
+            </div>
+            <form id="taskForm" onsubmit="addTask(event)">
+                <div class="form-group">
+                    <label class="form-label">Task Title *</label>
+                    <input type="text" class="form-input" id="taskTitle" required placeholder="Enter task title">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-textarea" id="taskDescription" placeholder="Add task description"></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Class/Subject *</label>
+                        <select class="form-select" id="taskClass" required>
+                            <option value="">Select class</option>
+                            <option value="math">Mathematics</option>
+                            <option value="science">Science</option>
+                            <option value="english">English</option>
+                            <option value="history">History</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Priority *</label>
+                        <select class="form-select" id="taskPriority" required>
+                            <option value="">Select priority</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Status *</label>
+                        <select class="form-select" id="taskStatus" required>
+                            <option value="todo">To Do</option>
+                            <option value="progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Due Date</label>
+                        <input type="date" class="form-input" id="taskDue">
+                    </div>
+                </div>
+                
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-plus"></i> Add Task
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Task storage
+        let tasks = JSON.parse(localStorage.getItem('studyDeckTasks')) || [];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTasks();
+        });
+
+        function toggleDropdown() {
+            const dropdown = document.querySelector('.ai-dropdown');
+            dropdown.classList.toggle('open');
+        }
+
+        function toggleMathDropdown() {
+            const dropdown = document.querySelector('.math-dropdown');
+            dropdown.classList.toggle('open');
+        }
+
+        function toggleMobileMenu() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.mobile-overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        function handleSignout() {
+            if (confirm('Are you sure you want to sign out?')) {
+                console.log('User signed out');
+                alert('Signed out successfully!');
+            }
+        }
+
+        function openModal() {
+            document.getElementById('taskModal').classList.add('active');
+            document.getElementById('taskForm').reset();
+        }
+
+        function closeModal() {
+            document.getElementById('taskModal').classList.remove('active');
+        }
+
+        function addTask(event) {
+            event.preventDefault();
+            
+            const task = {
+                id: Date.now(),
+                title: document.getElementById('taskTitle').value,
+                description: document.getElementById('taskDescription').value,
+                class: document.getElementById('taskClass').value,
+                priority: document.getElementById('taskPriority').value,
+                status: document.getElementById('taskStatus').value,
+                due: document.getElementById('taskDue').value
+            };
+            
+            tasks.push(task);
+            saveTasks();
+            renderTasks();
+            closeModal();
+        }
+
+        function renderTasks() {
+            // Clear all columns
+            document.getElementById('todo-tasks').innerHTML = '';
+            document.getElementById('progress-tasks').innerHTML = '';
+            document.getElementById('completed-tasks').innerHTML = '';
+            
+            // Count tasks
+            let todoCnt = 0, progressCnt = 0, completedCnt = 0;
+            
+            // Render each task
+            tasks.forEach(task => {
+                const taskCard = createTaskCard(task);
+                const container = document.getElementById(task.status + '-tasks');
+                container.appendChild(taskCard);
+                
+                if (task.status === 'todo') todoCnt++;
+                else if (task.status === 'progress') progressCnt++;
+                else completedCnt++;
+            });
+            
+            // Update counts
+            document.getElementById('todo-count').textContent = todoCnt;
+            document.getElementById('progress-count').textContent = progressCnt;
+            document.getElementById('completed-count').textContent = completedCnt;
+        }
+
+        function createTaskCard(task) {
+            const card = document.createElement('div');
+            card.className = 'task-card';
+            card.draggable = true;
+            card.dataset.taskId = task.id;
+            card.ondragstart = drag;
+            
+            const priorityIcon = {
+                high: 'fa-exclamation-circle',
+                medium: 'fa-minus-circle',
+                low: 'fa-info-circle'
+            };
+            
+            const classNames = {
+                math: 'Mathematics',
+                science: 'Science',
+                english: 'English',
+                history: 'History',
+                other: 'Other'
+            };
+            
+            card.innerHTML = `
+                <div class="task-header">
+                    <div class="task-title">${task.title}</div>
+                    <div class="task-menu" onclick="deleteTask(${task.id})">
+                        <i class="fas fa-trash"></i>
+                    </div>
+                </div>
+                ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
+                <div class="task-meta">
+                    <span class="task-class ${task.class}">
+                        <i class="fas fa-book"></i>
+                        ${classNames[task.class]}
+                    </span>
+                    <span class="task-priority ${task.priority}">
+                        <i class="fas ${priorityIcon[task.priority]}"></i>
+                        ${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+                    </span>
+                    ${task.due ? `
+                        <span class="task-due">
+                            <i class="fas fa-calendar"></i>
+                            ${new Date(task.due).toLocaleDateString()}
+                        </span>
+                    ` : ''}
+                </div>
+            `;
+            
+            return card;
+        }
+
+        function deleteTask(id) {
+            if (confirm('Are you sure you want to delete this task?')) {
+                tasks = tasks.filter(task => task.id !== id);
+                saveTasks();
+                renderTasks();
+            }
+        }
+
+        function saveTasks() {
+            localStorage.setItem('studyDeckTasks', JSON.stringify(tasks));
+        }
+
+        // Drag and Drop functions
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+
+        function drag(event) {
+            event.dataTransfer.setData('taskId', event.target.dataset.taskId);
+            event.target.classList.add('dragging');
+        }
+
+        function drop(event) {
+            event.preventDefault();
+            const taskId = parseInt(event.dataTransfer.getData('taskId'));
+            const newStatus = event.currentTarget.dataset.status;
+            
+            // Remove dragging class
+            document.querySelectorAll('.task-card').forEach(card => {
+                card.classList.remove('dragging');
+            });
+            
+            // Update task status
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.status = newStatus;
+                saveTasks();
+                renderTasks();
+            }
+        }
+
+        // Sample tasks for demonstration
+        if (tasks.length === 0) {
+            tasks = [
+                {
+                    id: 1,
+                    title: 'Complete Math Homework',
+                    description: 'Finish problems 1-20 from Chapter 5',
+                    class: 'math',
+                    priority: 'high',
+                    status: 'todo',
+                    due: '2025-11-08'
+                },
+                {
+                    id: 2,
+                    title: 'Study for Science Test',
+                    description: 'Review chapters 3-5 on cellular biology',
+                    class: 'science',
+                    priority: 'high',
+                    status: 'progress',
+                    due: '2025-11-10'
+                },
+                {
+                    id: 3,
+                    title: 'English Essay Draft',
+                    description: 'Write first draft of persuasive essay',
+                    class: 'english',
+                    priority: 'medium',
+                    status: 'todo',
+                    due: '2025-11-12'
+                },
+                {
+                    id: 4,
+                    title: 'History Reading',
+                    description: 'Read Chapter 8 - World War II',
+                    class: 'history',
+                    priority: 'low',
+                    status: 'completed',
+                    due: '2025-11-06'
+                }
+            ];
+            saveTasks();
+            renderTasks();
+        }
+    </script>
+</body>
+</html>

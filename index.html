@@ -87,6 +87,15 @@
             padding: 15px 25px;
         }
 
+        /* Math Dropdown - same styling */
+        .math-dropdown {
+            position: relative;
+        }
+
+        .math-dropdown .nav-item {
+            padding: 15px 25px;
+        }
+
         .dropdown-header {
             display: flex;
             align-items: center;
@@ -99,7 +108,8 @@
             flex: 1;
         }
 
-        .dropdown-header i.fa-brain {
+        .dropdown-header i.fa-brain,
+        .dropdown-header i.fa-calculator {
             width: 25px;
             margin-right: 15px;
             font-size: 18px;
@@ -111,7 +121,8 @@
             margin-left: auto;
         }
 
-        .ai-dropdown.open .fa-chevron-down {
+        .ai-dropdown.open .fa-chevron-down,
+        .math-dropdown.open .fa-chevron-down {
             transform: rotate(180deg);
         }
 
@@ -122,7 +133,8 @@
             opacity: 0;
         }
 
-        .ai-dropdown.open .dropdown-content {
+        .ai-dropdown.open .dropdown-content,
+        .math-dropdown.open .dropdown-content {
             max-height: 350px;
             opacity: 1;
         }
@@ -191,6 +203,30 @@
             border-radius: 10px;
             font-size: 11px;
             font-weight: 600;
+        }
+
+        .signout-btn {
+            background: rgba(239, 68, 68, 0.1);
+            border: none;
+            color: #ef4444;
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .signout-btn:hover {
+            background: #ef4444;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .signout-btn i {
+            font-size: 16px;
         }
 
         /* Main Content */
@@ -333,6 +369,82 @@
         .activity-time {
             font-size: 13px;
             color: #94a3b8;
+        }
+
+        /* Footer */
+        .footer {
+            background: white;
+            padding: 30px 40px;
+            border-top: 1px solid #e2e8f0;
+            margin-top: 40px;
+            border-radius: 12px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .footer-left i {
+            color: #3b82f6;
+            font-size: 18px;
+        }
+
+        .footer-left strong {
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: #64748b;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .footer-link:hover {
+            color: #3b82f6;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .social-icon:hover {
+            background: #3b82f6;
+            color: white;
+            transform: translateY(-2px);
         }
 
         /* Quick Action Buttons */
@@ -533,6 +645,19 @@
                 align-items: flex-start;
                 gap: 10px;
             }
+
+            .footer {
+                padding: 20px;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .footer-links {
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -619,6 +744,28 @@
                     </div>
                 </div>
                 
+                <div class="math-dropdown">
+                    <div class="nav-item" onclick="toggleMathDropdown()">
+                        <div class="dropdown-header">
+                            <div class="icon-text">
+                                <i class="fas fa-calculator"></i>
+                                <span>Math Tools</span>
+                            </div>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </div>
+                    <div class="dropdown-content">
+                        <div class="dropdown-item">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Graphing Calculator</span>
+                        </div>
+                        <div class="dropdown-item">
+                            <i class="fas fa-calculator"></i>
+                            <span>Scientific Calculator</span>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="nav-item">
                     <i class="fas fa-cog"></i>
                     <span>Settings</span>
@@ -635,6 +782,9 @@
                         <i class="fas fa-crown"></i> Premium
                     </span>
                 </div>
+                <button class="signout-btn" onclick="handleSignout()" title="Sign Out">
+                    <i class="fas fa-right-from-bracket"></i>
+                </button>
             </div>
         </div>
 
@@ -751,6 +901,28 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Footer -->
+                <div class="footer">
+                    <div class="footer-content">
+                        <div class="footer-left">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>© 2025 <strong>StudyDeck</strong> - All rights reserved</span>
+                        </div>
+                        <div class="footer-links">
+                            <a href="#" class="footer-link">About</a>
+                            <a href="#" class="footer-link">Privacy Policy</a>
+                            <a href="#" class="footer-link">Terms of Service</a>
+                            <a href="#" class="footer-link">Contact</a>
+                            <a href="#" class="footer-link">Help Center</a>
+                        </div>
+                        <div class="footer-social">
+                            <div class="social-icon" title="GitHub">
+                                <i class="fab fa-github"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -761,6 +933,11 @@
             dropdown.classList.toggle('open');
         }
 
+        function toggleMathDropdown() {
+            const dropdown = document.querySelector('.math-dropdown');
+            dropdown.classList.toggle('open');
+        }
+
         function toggleMobileMenu() {
             const sidebar = document.querySelector('.sidebar');
             const overlay = document.querySelector('.mobile-overlay');
@@ -768,8 +945,16 @@
             overlay.classList.toggle('active');
         }
 
+        function handleSignout() {
+            if (confirm('Are you sure you want to sign out?')) {
+                console.log('User signed out');
+                // Add your signout logic here
+                alert('Signed out successfully!');
+            }
+        }
+
         // Add click handlers for navigation items
-        document.querySelectorAll('.nav-item:not(.ai-dropdown)').forEach(item => {
+        document.querySelectorAll('.nav-item:not(.ai-dropdown):not(.math-dropdown)').forEach(item => {
             item.addEventListener('click', function() {
                 document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
                 this.classList.add('active');

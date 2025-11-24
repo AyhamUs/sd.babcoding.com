@@ -42,6 +42,10 @@
             color: #e2e8f0;
         }
 
+        body.dark-mode .header #welcomeSubtitle {
+            color: #94a3b8;
+        }
+
         body.dark-mode .card {
             background: #1e293b;
             border: 1px solid #334155;
@@ -1912,6 +1916,7 @@
         <div class="main-content">
             <div class="header">
                 <h1 id="welcomeMessage">Welcome back, Ayham! 👋</h1>
+                <p id="welcomeSubtitle" style="color: #64748b; font-size: 16px; margin-top: 8px;">Ready to crush your goals today? Let's make it happen!</p>
             </div>
             
             <div class="content">
@@ -2099,7 +2104,18 @@
                 document.getElementById('userName').textContent = fullName;
                 
                 // Update welcome message
-                document.getElementById('welcomeMessage').textContent = `Welcome back, ${firstName}!`;
+                document.getElementById('welcomeMessage').textContent = `Welcome back, ${firstName}! 👋`;
+                
+                // Update welcome subtitle with motivational message
+                const subtitles = [
+                    "Ready to crush your goals today? Let's make it happen! 🚀",
+                    "Another great day to learn something new! 📚",
+                    "Your dedication is inspiring. Keep going! ⭐",
+                    "Let's make today productive! 💪",
+                    "Time to unlock your potential! 🎯"
+                ];
+                const randomSubtitle = subtitles[Math.floor(Math.random() * subtitles.length)];
+                document.getElementById('welcomeSubtitle').textContent = randomSubtitle;
             }
         }
 

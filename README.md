@@ -4,8 +4,6 @@
 
 ### Your All-in-One Study Companion
 
-![VieraStudy](studydeck.png)
-
 [![Version](https://img.shields.io/badge/version-1.0-84cc16?style=for-the-badge)](https://github.com/vierastudy)
 [![License](https://img.shields.io/badge/license-MIT-3b82f6?style=for-the-badge)](LICENSE)
 [![PRO](https://img.shields.io/badge/VieraStudy-PRO-fbbf24?style=for-the-badge)](https://vierastudy.com)
@@ -197,3 +195,4 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 **[VieraStudy](https://sd.babcoding.com)** — Study Smarter, Not Harder
 
 </div>
+

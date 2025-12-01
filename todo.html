@@ -1632,9 +1632,7 @@
             }
 
             localStorage.setItem('studyDeckTodos', JSON.stringify(todos));
-            if (typeof vieraAPI !== 'undefined' && vieraAPI.scheduleSync) {
-                syncData();
-            }
+            syncData();
             
             // Log activity for new tasks
             if (isNew) {
@@ -1707,7 +1705,7 @@
                     logActivity('fas fa-check-circle', 'green', `Completed task: ${todo.title}`);
                 }
                 localStorage.setItem('studyDeckTodos', JSON.stringify(todos));
-                if (typeof vieraAPI !== 'undefined' && vieraAPI.scheduleSync) syncData();
+                syncData();
                 renderTodos();
             }
         }
@@ -1722,13 +1720,13 @@
             if (confirmed) {
                 todos = todos.filter(t => t.id !== id);
                 localStorage.setItem('studyDeckTodos', JSON.stringify(todos));
-                if (typeof vieraAPI !== 'undefined' && vieraAPI.scheduleSync) syncData();
+                syncData();
                 
                 // Remove from schedule
                 let events = JSON.parse(localStorage.getItem('studyDeckEvents')) || [];
                 events = events.filter(e => e.todoId !== id);
                 localStorage.setItem('studyDeckEvents', JSON.stringify(events));
-                if (typeof vieraAPI !== 'undefined' && vieraAPI.scheduleSync) syncData();
+                syncData();
                 
                 renderTodos();
                 showNotification('Task deleted successfully', 'success', 'Task Deleted');

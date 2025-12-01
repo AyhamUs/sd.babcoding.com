@@ -502,13 +502,6 @@ class VieraStudyAPI {
 // Create global instance
 window.vieraAPI = new VieraStudyAPI();
 
-// Global sync function for backward compatibility
-window.syncData = function() {
-    if (window.vieraAPI && window.vieraAPI.isLoggedIn()) {
-        window.vieraAPI.scheduleSave();
-    }
-};
-
 // ============ localStorage COMPATIBILITY LAYER ============
 // Override localStorage for studyDeck keys to use cloud cache instead
 // This allows existing code to work without modification
@@ -516,6 +509,37 @@ window.syncData = function() {
 const _originalGetItem = localStorage.getItem.bind(localStorage);
 const _originalSetItem = localStorage.setItem.bind(localStorage);
 const _originalRemoveItem = localStorage.removeItem.bind(localStorage);
+
+// Global sync function for backward compatibility
+// Forces an immediate save for reliability
+window.syncData = function() {
+    console.log('syncData() called, isLoggedIn:', window.vieraAPI?.isLoggedIn());
+    if (window.vieraAPI && window.vieraAPI.isLoggedIn()) {
+        _isDirty = true;
+        const token = _originalGetItem('vierastudy_token');
+        console.log('Token found:', !!token);
+        console.log('Cache to save:', JSON.stringify(_cache).substring(0, 200) + '...');
+        if (token) {
+            // Use fetch for immediate save (more reliable than sendBeacon)
+            fetch(`${API_URL}/data`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(_cache)
+            }).then(response => {
+                console.log('syncData response status:', response.status);
+                return response.json();
+            }).then(data => {
+                _isDirty = false;
+                console.log('Data saved via syncData():', data);
+            }).catch(err => {
+                console.error('syncData save failed:', err);
+            });
+        }
+    }
+};
 
 // Map localStorage keys to cache properties
 const _keyMap = {
@@ -604,6 +628,7 @@ localStorage.setItem = function(key, value) {
         
         try {
             _cache[cacheKey] = JSON.parse(value);
+            console.log(`Cache updated: ${cacheKey}`, _cache[cacheKey].length || Object.keys(_cache[cacheKey]).length, 'items');
         } catch (e) {
             _cache[cacheKey] = value;
         }

@@ -2396,6 +2396,21 @@
     <script src="api.js"></script>
     
     <script>
+        // Ensure vieraAPI is available
+        if (typeof vieraAPI === 'undefined') {
+            console.error('VieraStudy API not loaded!');
+            window.vieraAPI = {
+                verifySession: async () => null,
+                register: async () => ({ error: 'API not loaded' }),
+                login: async () => ({ error: 'API not loaded' }),
+                logout: async () => {},
+                isLoggedIn: () => false,
+                syncToCloud: async () => {},
+                syncFromCloud: async () => null,
+                scheduleSync: () => {}
+            };
+        }
+        
         // User Profile Management
         async function checkUserProfile() {
             // Try to verify existing session first
@@ -2431,12 +2446,15 @@
         
         async function handleRegister(event) {
             event.preventDefault();
+            console.log('handleRegister called');
             
             const firstName = document.getElementById('registerFirstName').value.trim();
             const lastName = document.getElementById('registerLastName').value.trim();
             const email = document.getElementById('registerEmail').value.trim();
             const password = document.getElementById('registerPassword').value;
             const btn = document.getElementById('registerBtn');
+            
+            console.log('Form data:', { firstName, lastName, email, hasPassword: !!password });
             
             if (!firstName || !email || !password) {
                 showNotification('Please fill in all required fields.', 'error', 'Missing Information');
@@ -2453,7 +2471,9 @@
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
             
             try {
+                console.log('Calling vieraAPI.register...');
                 const result = await vieraAPI.register(email, password, firstName, lastName);
+                console.log('Register result:', result);
                 
                 if (result.success) {
                     // Save user profile locally for quick access
@@ -2482,10 +2502,13 @@
         
         async function handleLogin(event) {
             event.preventDefault();
+            console.log('handleLogin called');
             
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
             const btn = document.getElementById('loginBtn');
+            
+            console.log('Login attempt for:', email);
             
             if (!email || !password) {
                 showNotification('Please enter your email and password.', 'error', 'Missing Information');
@@ -2497,7 +2520,9 @@
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
             
             try {
+                console.log('Calling vieraAPI.login...');
                 const result = await vieraAPI.login(email, password);
+                console.log('Login result:', result);
                 
                 if (result.success) {
                     // Save user profile locally

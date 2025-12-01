@@ -1329,6 +1329,7 @@
         </div>
     </div>
 
+    <script src="api.js"></script>
     <script>
         // Notification Modal Functions
         function showNotification(message, type = 'success', title = null) {
@@ -1508,27 +1509,14 @@
 
         async function handleSignout() {
             const confirmed = await showConfirmation(
-                'Are you sure you want to sign out? This will clear your profile data.',
+                'Are you sure you want to sign out?',
                 'Sign Out',
                 'warning'
             );
             
             if (confirmed) {
-                // Clear all user data from localStorage
-                localStorage.removeItem('studyDeckUserProfile');
-                localStorage.removeItem('studyDeckDarkMode');
-                localStorage.removeItem('studyDeckFlashcards');
-                localStorage.removeItem('studyDeckTodos');
-                localStorage.removeItem('studyDeckNotes');
-                localStorage.removeItem('studyDeckClasses');
-                localStorage.removeItem('studyDeckActivityLog');
-                localStorage.removeItem('studyDeckTasks');
-                localStorage.removeItem('studyDeckPomodoroSessions');
-                localStorage.removeItem('studyDeckPomodoroSettings');
-                localStorage.removeItem('studyDeckPomodoroStats');
-                localStorage.removeItem('studyDeckEvents');
-                
-                // Redirect to home page which will show the onboarding screen
+                await vieraAPI.syncToCloud();
+                await vieraAPI.logout();
                 window.location.href = 'index';
             }
         }
@@ -1634,6 +1622,7 @@
             }
 
             localStorage.setItem('studyDeckTodos', JSON.stringify(todos));
+            vieraAPI.scheduleSync();
             
             // Log activity for new tasks
             if (isNew) {
@@ -1705,7 +1694,8 @@
                 if (todo.completed) {
                     logActivity('fas fa-check-circle', 'green', `Completed task: ${todo.title}`);
                 }
-                
+                localStorage.setItem('studyDeckTodos', JSON.stringify(todos));
+                vieraAPI.scheduleSync();
                 renderTodos();
             }
         }
@@ -1720,11 +1710,13 @@
             if (confirmed) {
                 todos = todos.filter(t => t.id !== id);
                 localStorage.setItem('studyDeckTodos', JSON.stringify(todos));
+                vieraAPI.scheduleSync();
                 
                 // Remove from schedule
                 let events = JSON.parse(localStorage.getItem('studyDeckEvents')) || [];
                 events = events.filter(e => e.todoId !== id);
                 localStorage.setItem('studyDeckEvents', JSON.stringify(events));
+                vieraAPI.scheduleSync();
                 
                 renderTodos();
                 showNotification('Task deleted successfully', 'success', 'Task Deleted');

@@ -1499,19 +1499,40 @@
                 return;
             }
             
-            // Update local profile
-            const userProfile = JSON.parse(localStorage.getItem('studyDeckUserProfile')) || {};
-            userProfile.firstName = firstName;
-            userProfile.lastName = lastName;
-            localStorage.setItem('studyDeckUserProfile', JSON.stringify(userProfile));
-            
-            // Update UI
-            const initials = `${firstName.charAt(0)}${lastName ? lastName.charAt(0) : ''}`.toUpperCase();
-            const fullName = lastName ? `${firstName} ${lastName}` : firstName;
-            document.getElementById('userAvatar').textContent = initials;
-            document.getElementById('userName').textContent = fullName;
-            
-            showNotification('Profile updated successfully!', 'success', 'Profile Updated');
+            try {
+                const token = localStorage.getItem('vierastudy_token');
+                const response = await fetch('https://vierastudy-api.ayhamissa416.workers.dev/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ firstName, lastName })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    // Update vieraAPI user object
+                    if (window.vieraAPI) {
+                        vieraAPI.user = data.user;
+                        localStorage.setItem('vierastudy_user', JSON.stringify(data.user));
+                    }
+                    
+                    // Update UI
+                    const initials = `${firstName.charAt(0)}${lastName ? lastName.charAt(0) : ''}`.toUpperCase();
+                    const fullName = lastName ? `${firstName} ${lastName}` : firstName;
+                    document.getElementById('userAvatar').textContent = initials;
+                    document.getElementById('userName').textContent = fullName;
+                    
+                    showNotification('Profile updated successfully!', 'success', 'Profile Updated');
+                } else {
+                    showNotification(data.error || 'Failed to update profile', 'error', 'Error');
+                }
+            } catch (error) {
+                console.error('Profile update error:', error);
+                showNotification('Failed to update profile. Please try again.', 'error', 'Error');
+            }
         }
 
         // Change password

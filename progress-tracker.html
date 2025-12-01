@@ -1543,7 +1543,7 @@
         </div>
     </div>
 
-    <script src="api.js"></script>
+    <script src="api.js?v=3"></script>
     <script>
         // Notification Modal Functions
         function showNotification(message, type = 'success', title = null) {
@@ -1848,7 +1848,7 @@
             }
             
             localStorage.setItem('studyDeckEvents', JSON.stringify(events));
-            vieraAPI.scheduleSync();
+            syncData();
         }
 
         function editTask(id) {
@@ -1983,7 +1983,7 @@
                 let events = JSON.parse(localStorage.getItem('studyDeckEvents')) || [];
                 events = events.filter(e => e.taskId !== id);
                 localStorage.setItem('studyDeckEvents', JSON.stringify(events));
-                vieraAPI.scheduleSync();
+                syncData();
                 
                 saveTasks();
                 renderTasks();
@@ -1993,7 +1993,7 @@
 
         function saveTasks() {
             localStorage.setItem('studyDeckTasks', JSON.stringify(tasks));
-            vieraAPI.scheduleSync();
+            syncData();
         }
 
         // Drag and Drop functions

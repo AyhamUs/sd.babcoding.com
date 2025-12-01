@@ -251,24 +251,28 @@ class VieraStudyAPI {
         return localData;
     }
 
-    // Schedule a debounced sync
+    // Schedule a debounced sync - syncs immediately then debounces subsequent calls
     scheduleSync() {
-        console.log('scheduleSync called, isLoggedIn:', this.isLoggedIn());
-        if (this._syncTimeout) clearTimeout(this._syncTimeout);
-        this._syncTimeout = setTimeout(async () => {
-            if (this.isLoggedIn()) {
-                console.log('Syncing to cloud...');
-                const result = await this.syncToCloud();
-                console.log('Sync result:', result);
-            } else {
-                console.log('Not logged in, skipping sync');
-            }
-        }, 2000);
+        // Sync immediately
+        if (this.isLoggedIn()) {
+            this.syncToCloud().then(result => {
+                console.log('Synced to cloud:', result?.success ? 'success' : 'failed');
+            }).catch(err => {
+                console.error('Sync error:', err);
+            });
+        }
     }
 }
 
 // Create global instance
 window.vieraAPI = new VieraStudyAPI();
+
+// Global sync function that's always safe to call
+window.syncData = function() {
+    if (window.vieraAPI && typeof window.vieraAPI.scheduleSync === 'function') {
+        window.vieraAPI.scheduleSync();
+    }
+};
 
 // Auto-sync on page unload (save local changes to cloud)
 window.addEventListener('beforeunload', function() {

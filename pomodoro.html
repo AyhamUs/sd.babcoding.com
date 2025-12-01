@@ -1544,7 +1544,7 @@
         </div>
     </div>
 
-    <script src="api.js"></script>
+    <script src="api.js?v=3"></script>
     <script>
         // Notification Modal Functions
         function showNotification(message, type = 'success', title = null) {
@@ -1773,7 +1773,7 @@
             settings.longBreak = parseInt(document.getElementById('longBreakDuration').value);
             
             localStorage.setItem('studyDeckPomodoroSettings', JSON.stringify(settings));
-            vieraAPI.scheduleSync();
+            syncData();
             resetTimer();
             showNotification('Your Pomodoro settings have been saved!', 'success', 'Settings Saved');
         }
@@ -1870,7 +1870,7 @@
                 pomodoroStats.lastSession = new Date().toISOString();
                 pomodoroStats.totalSessions = (pomodoroStats.totalSessions || 0) + 1;
                 localStorage.setItem('studyDeckPomodoroStats', JSON.stringify(pomodoroStats));
-                vieraAPI.scheduleSync();
+                syncData();
                 
                 // Log activity
                 const selectedClass = classId ? classes.find(c => c.id === parseInt(classId)) : null;

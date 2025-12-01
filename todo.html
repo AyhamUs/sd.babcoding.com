@@ -1329,7 +1329,7 @@
         </div>
     </div>
 
-    <script src="api.js"></script>
+    <script src="api.js?v=3"></script>
     <script>
         // Notification Modal Functions
         function showNotification(message, type = 'success', title = null) {
@@ -1622,7 +1622,9 @@
             }
 
             localStorage.setItem('studyDeckTodos', JSON.stringify(todos));
-            vieraAPI.scheduleSync();
+            if (typeof vieraAPI !== 'undefined' && vieraAPI.scheduleSync) {
+                syncData();
+            }
             
             // Log activity for new tasks
             if (isNew) {
@@ -1695,7 +1697,7 @@
                     logActivity('fas fa-check-circle', 'green', `Completed task: ${todo.title}`);
                 }
                 localStorage.setItem('studyDeckTodos', JSON.stringify(todos));
-                vieraAPI.scheduleSync();
+                if (typeof vieraAPI !== 'undefined' && vieraAPI.scheduleSync) syncData();
                 renderTodos();
             }
         }
@@ -1710,13 +1712,13 @@
             if (confirmed) {
                 todos = todos.filter(t => t.id !== id);
                 localStorage.setItem('studyDeckTodos', JSON.stringify(todos));
-                vieraAPI.scheduleSync();
+                if (typeof vieraAPI !== 'undefined' && vieraAPI.scheduleSync) syncData();
                 
                 // Remove from schedule
                 let events = JSON.parse(localStorage.getItem('studyDeckEvents')) || [];
                 events = events.filter(e => e.todoId !== id);
                 localStorage.setItem('studyDeckEvents', JSON.stringify(events));
-                vieraAPI.scheduleSync();
+                if (typeof vieraAPI !== 'undefined' && vieraAPI.scheduleSync) syncData();
                 
                 renderTodos();
                 showNotification('Task deleted successfully', 'success', 'Task Deleted');

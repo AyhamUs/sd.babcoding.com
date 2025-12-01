@@ -1291,7 +1291,7 @@
         </div>
     </div>
 
-    <script src="api.js"></script>
+    <script src="api.js?v=3"></script>
     <script>
         // Notification Modal Functions
         function showNotification(message, type = 'success', title = null) {
@@ -1601,7 +1601,7 @@
             }
 
             localStorage.setItem('studyDeckClasses', JSON.stringify(classes));
-            vieraAPI.scheduleSync();
+            syncData();
             
             // Log activity for new classes
             if (isNew) {
@@ -1637,7 +1637,7 @@
             if (confirmed) {
                 classes = classes.filter(c => c.id !== id);
                 localStorage.setItem('studyDeckClasses', JSON.stringify(classes));
-                vieraAPI.scheduleSync();
+                syncData();
                 renderClasses();
                 showNotification('Class deleted successfully', 'success', 'Class Deleted');
             }

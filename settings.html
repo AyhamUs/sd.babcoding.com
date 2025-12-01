@@ -1104,7 +1104,7 @@
         </div>
     </div>
 
-    <script src="api.js"></script>
+    <script src="api.js?v=3"></script>
     <script>
         // Notification Modal Functions
         function showNotification(message, type = 'success', title = null) {
@@ -1284,7 +1284,7 @@
             
             // Sync to cloud
             if (typeof vieraAPI !== 'undefined' && vieraAPI.isLoggedIn()) {
-                vieraAPI.scheduleSync();
+                syncData();
             }
             
             if (darkMode) {

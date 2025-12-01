@@ -1534,7 +1534,7 @@
         </div>
     </div>
 
-    <script src="api.js"></script>
+    <script src="api.js?v=3"></script>
     <script>
         // Notification Modal Functions
         function showNotification(message, type = 'success', title = null) {
@@ -1842,7 +1842,7 @@
 
             decks.push(deck);
             localStorage.setItem('studyDeckFlashcards', JSON.stringify(decks));
-            vieraAPI.scheduleSync();
+            syncData();
             
             // Log activity
             logActivity('fas fa-layer-group', 'purple', `Created flashcard deck: ${name}`);
@@ -1862,7 +1862,7 @@
             if (confirmed) {
                 decks = decks.filter(d => d.id !== id);
                 localStorage.setItem('studyDeckFlashcards', JSON.stringify(decks));
-                vieraAPI.scheduleSync();
+                syncData();
                 renderDecks();
                 showNotification('Deck deleted successfully', 'success', 'Deck Deleted');
             }

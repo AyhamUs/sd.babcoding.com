@@ -1686,7 +1686,7 @@
         </div>
     </div>
 
-    <script src="api.js"></script>
+    <script src="api.js?v=3"></script>
     <script>
         // Notification Modal Functions
         function showNotification(message, type = 'success', title = null) {
@@ -1959,7 +1959,7 @@
             
             notes.unshift(newNote);
             localStorage.setItem('studyDeckNotes', JSON.stringify(notes));
-            vieraAPI.scheduleSync();
+            syncData();
             
             // Log activity
             logActivity('fas fa-file-alt', 'cyan', 'Started new note');
@@ -2089,7 +2089,7 @@
             notes[index] = currentNote;
             
             localStorage.setItem('studyDeckNotes', JSON.stringify(notes));
-            vieraAPI.scheduleSync();
+            syncData();
             renderNotesList();
             
             if (showAlert) {
@@ -2110,7 +2110,7 @@
             
             notes = notes.filter(n => n.id !== currentNote.id);
             localStorage.setItem('studyDeckNotes', JSON.stringify(notes));
-            vieraAPI.scheduleSync();
+            syncData();
             
             renderNotesList();
             if (notes.length > 0) {

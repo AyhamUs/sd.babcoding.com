@@ -1966,7 +1966,7 @@
         </div>
     </div>
 
-    <script src="api.js"></script>
+    <script src="api.js?v=3"></script>
     <script>
         // Notification Modal Functions
         function showNotification(message, type = 'success', title = null) {
@@ -2624,7 +2624,7 @@
             }
             
             localStorage.setItem('studyDeckEvents', JSON.stringify(events));
-            vieraAPI.scheduleSync();
+            syncData();
             
             // Log activity for new events
             if (isNew) {
@@ -2654,7 +2654,7 @@
             if (taskIndex >= 0) {
                 tasks[taskIndex].due = newDate;
                 localStorage.setItem('studyDeckTasks', JSON.stringify(tasks));
-                vieraAPI.scheduleSync();
+                syncData();
             }
         }
         
@@ -2664,7 +2664,7 @@
             if (todoIndex >= 0) {
                 todos[todoIndex].due = newDate;
                 localStorage.setItem('studyDeckTodos', JSON.stringify(todos));
-                vieraAPI.scheduleSync();
+                syncData();
             }
         }
 
@@ -2696,7 +2696,7 @@
             if (confirmed) {
                 events = events.filter(e => e.id !== id);
                 localStorage.setItem('studyDeckEvents', JSON.stringify(events));
-                vieraAPI.scheduleSync();
+                syncData();
                 
                 if (currentView === 'month') renderMonthView();
                 else if (currentView === 'week') renderWeekView();

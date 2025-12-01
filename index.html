@@ -2523,12 +2523,6 @@
                     loadStatistics();
                     showNotification(`Welcome back, ${result.user.firstName}! 👋`, 'success', 'Signed In');
                 } else {
-                    
-                    document.getElementById('welcomeOverlay').classList.remove('show');
-                    loadUserProfile();
-                    loadStatistics();
-                    showNotification(`Welcome back, ${result.user.firstName}! 👋`, 'success', 'Signed In');
-                } else {
                     showNotification(result.error || 'Invalid email or password.', 'error', 'Login Failed');
                 }
             } catch (error) {

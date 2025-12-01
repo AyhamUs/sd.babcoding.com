@@ -34,8 +34,8 @@ let _lastLoadTime = 0;
 const DATA_CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 
 // Sync timing
-const SYNC_DEBOUNCE = 10000; // 10 seconds after last change
-const SYNC_MAX_DELAY = 30000; // Maximum 30 seconds before forced sync
+const SYNC_DEBOUNCE = 3000; // 3 seconds after last change
+const SYNC_MAX_DELAY = 10000; // Maximum 10 seconds before forced sync
 
 class VieraStudyAPI {
     constructor() {
@@ -653,30 +653,47 @@ localStorage.removeItem = function(key) {
     return _originalRemoveItem(key);
 };
 
-// Save data before page unload
-window.addEventListener('beforeunload', function() {
-    if (window.vieraAPI && window.vieraAPI.isLoggedIn() && _isDirty) {
-        // Use sendBeacon for reliable save on page close
+// Helper function to save via sendBeacon
+function saveViaBeacon() {
+    if (window.vieraAPI?.isLoggedIn() && _isDirty) {
         const token = _originalGetItem('vierastudy_token');
         if (token && navigator.sendBeacon) {
             const blob = new Blob([JSON.stringify(_cache)], { type: 'application/json' });
             navigator.sendBeacon(`${API_URL}/data?token=${token}`, blob);
-            console.log('Data saved via sendBeacon on page unload');
+            _isDirty = false;
+            console.log('Data saved via sendBeacon');
+            return true;
+        }
+    }
+    return false;
+}
+
+// Save data before page unload
+window.addEventListener('beforeunload', function() {
+    saveViaBeacon();
+});
+
+// Also handle pagehide (more reliable on mobile and some browsers)
+window.addEventListener('pagehide', function() {
+    saveViaBeacon();
+});
+
+// Save when clicking any internal navigation link
+document.addEventListener('click', function(e) {
+    const link = e.target.closest('a[href]');
+    if (link && _isDirty) {
+        const href = link.getAttribute('href');
+        // Check if it's an internal link (not external)
+        if (href && !href.startsWith('http') && !href.startsWith('//') && !href.startsWith('mailto:')) {
+            saveViaBeacon();
         }
     }
 });
 
 // Also save on visibility change (user switches tabs or minimizes)
 document.addEventListener('visibilitychange', function() {
-    if (document.visibilityState === 'hidden' && window.vieraAPI?.isLoggedIn() && _isDirty) {
-        // Use sendBeacon when page becomes hidden
-        const token = _originalGetItem('vierastudy_token');
-        if (token && navigator.sendBeacon) {
-            const blob = new Blob([JSON.stringify(_cache)], { type: 'application/json' });
-            navigator.sendBeacon(`${API_URL}/data?token=${token}`, blob);
-            _isDirty = false;
-            console.log('Data saved via sendBeacon on visibility change');
-        }
+    if (document.visibilityState === 'hidden') {
+        saveViaBeacon();
     }
 });
 

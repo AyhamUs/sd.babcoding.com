@@ -288,8 +288,8 @@
             color: inherit;
         }
 
-        a[href="index"].nav-item.active,
-        a[href="index"].nav-item:hover {
+        a[href="/"].nav-item.active,
+        a[href="/"].nav-item:hover {
             color: #3b82f6;
         }
 
@@ -1650,9 +1650,9 @@
         .welcome-form {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 18px;
             width: 100%;
-            max-width: 450px;
+            max-width: 400px;
         }
 
         .input-group {
@@ -1662,17 +1662,19 @@
 
         .input-label {
             display: block;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 8px;
+            color: #374151;
+            margin-bottom: 6px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
         .input-label i {
-            font-size: 16px;
+            font-size: 14px;
+            width: 16px;
+            text-align: center;
         }
 
         .input-label .fa-user {
@@ -1683,19 +1685,27 @@
             color: #8b5cf6;
         }
 
+        .input-label .fa-envelope {
+            color: #10b981;
+        }
+
+        .input-label .fa-lock {
+            color: #f59e0b;
+        }
+
         .input-label .fa-key {
             color: #f59e0b;
         }
 
         .welcome-input {
             width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #e2e8f0;
+            padding: 12px 14px;
+            border: 1.5px solid #e2e8f0;
             border-radius: 10px;
             font-size: 15px;
             font-family: 'Poppins', sans-serif;
-            transition: all 0.3s;
-            background: white;
+            transition: all 0.2s ease;
+            background: #f8fafc;
             color: #1e293b;
             box-sizing: border-box;
         }
@@ -1706,34 +1716,35 @@
 
         .welcome-input:focus {
             outline: none;
-            border-color: #1e293b;
+            border-color: #3b82f6;
             background: white;
-            box-shadow: 0 0 0 3px rgba(30, 41, 59, 0.1);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
         .welcome-input:hover:not(:focus) {
             border-color: #cbd5e1;
+            background: white;
         }
 
         .welcome-btn {
-            background: #1e293b;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
             color: white;
             border: none;
-            padding: 16px 40px;
-            border-radius: 12px;
-            font-size: 16px;
+            padding: 14px 32px;
+            border-radius: 10px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 10px;
-            box-shadow: 0 8px 24px rgba(30, 41, 59, 0.4);
+            transition: all 0.2s ease;
+            margin-top: 8px;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
             width: 100%;
         }
 
         .welcome-btn:hover {
-            background: #334155;
-            transform: translateY(-2px);
-            box-shadow: 0 12px 32px rgba(30, 41, 59, 0.5);
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
         }
 
         .welcome-btn:active {
@@ -1741,17 +1752,36 @@
         }
 
         .welcome-btn:disabled {
-            opacity: 0.5;
+            opacity: 0.6;
             cursor: not-allowed;
             transform: none;
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 20px;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .auth-switch a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .auth-switch a:hover {
+            color: #2563eb;
+            text-decoration: underline;
         }
 
         .welcome-divider {
             width: 100%;
             height: 1px;
             background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
-            margin: 20px 0;
-            max-width: 450px;
+            margin: 24px 0;
+            max-width: 400px;
         }
 
         .welcome-footer {
@@ -1774,36 +1804,38 @@
         .welcome-features {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
+            gap: 12px;
             width: 100%;
-            max-width: 450px;
-            margin-top: 10px;
+            max-width: 400px;
+            margin-top: 0;
         }
 
         .welcome-feature {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 16px;
+            gap: 10px;
+            padding: 12px 14px;
             background: #f8fafc;
-            border-radius: 12px;
-            transition: all 0.3s;
+            border-radius: 10px;
+            transition: all 0.2s ease;
             text-align: left;
+            border: 1px solid #f1f5f9;
         }
 
         .welcome-feature:hover {
             background: #f1f5f9;
-            transform: translateY(-2px);
+            border-color: #e2e8f0;
+            transform: translateY(-1px);
         }
 
         .welcome-feature-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
+            font-size: 18px;
             flex-shrink: 0;
         }
 
@@ -2033,8 +2065,8 @@
                 <button type="submit" class="welcome-btn" id="registerBtn">
                     Create Account →
                 </button>
-                <p style="text-align: center; margin-top: 16px; color: #64748b; font-size: 0.9em;">
-                    Already have an account? <a href="#" onclick="toggleAuthMode('login'); return false;" style="color: #3b82f6; text-decoration: none; font-weight: 600;">Sign In</a>
+                <p class="auth-switch">
+                    Already have an account? <a href="#" onclick="toggleAuthMode('login'); return false;">Sign In</a>
                 </p>
             </form>
             
@@ -2065,8 +2097,8 @@
                 <button type="submit" class="welcome-btn" id="loginBtn">
                     Sign In →
                 </button>
-                <p style="text-align: center; margin-top: 16px; color: #64748b; font-size: 0.9em;">
-                    Don't have an account? <a href="#" onclick="toggleAuthMode('register'); return false;" style="color: #3b82f6; text-decoration: none; font-weight: 600;">Create Account</a>
+                <p class="auth-switch">
+                    Don't have an account? <a href="#" onclick="toggleAuthMode('register'); return false;">Create Account</a>
                 </p>
             </form>
             
@@ -2129,7 +2161,7 @@
             </div>
             
             <nav class="nav-menu">
-                <a href="index" class="nav-item active">
+                <a href="/" class="nav-item active">
                     <i class="fas fa-home"></i>
                     <span>Home</span>
                 </a>
@@ -2393,7 +2425,7 @@
     </div>
 
     <!-- VieraStudy API -->
-    <script src="api.js?v=5"></script>
+    <script src="api.js?v=7"></script>
     
     <script>
         // Ensure vieraAPI is available
@@ -3167,7 +3199,7 @@
             // Cmd/Ctrl + H - Go to home
             if ((e.metaKey || e.ctrlKey) && e.key === 'h') {
                 e.preventDefault();
-                window.location.href = 'index';
+                window.location.href = '/';
             }
             
             // Cmd/Ctrl + F - Go to flashcards

@@ -227,8 +227,8 @@
             border-left: 3px solid #3b82f6;
         }
 
-        a[href="index"].nav-item.active,
-        a[href="index"].nav-item:hover {
+        a[href="/"].nav-item.active,
+        a[href="/"].nav-item:hover {
             color: #3b82f6;
         }
 
@@ -864,7 +864,7 @@
             </div>
             
             <nav class="nav-menu">
-                <a href="index" class="nav-item">
+                <a href="/" class="nav-item">
                     <i class="fas fa-home"></i>
                     <span>Home</span>
                 </a>
@@ -1144,7 +1144,7 @@
         }
     </style>
 
-    <script src="api.js?v=5"></script>
+    <script src="api.js?v=7"></script>
     <script>
         let equations = [];
         const colors = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
@@ -1519,7 +1519,7 @@
             localStorage.removeItem('studyDeckPomodoroSettings');
             localStorage.removeItem('studyDeckPomodoroStats');
             localStorage.removeItem('studyDeckEvents');
-            window.location.href = 'index';
+            window.location.href = '/';
         }
         
         // Close modal on background click

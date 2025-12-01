@@ -198,11 +198,14 @@ class VieraStudyAPI {
             };
             _cacheLoaded = true;
             
-            // Apply dark mode if set
+            // Sync dark mode from cloud to localStorage (for instant loading on next visit)
+            // and apply it to the page
             if (_cache.settings.darkMode) {
                 document.body.classList.add('dark-mode');
+                _originalSetItem('studyDeckDarkMode', 'true');
             } else {
                 document.body.classList.remove('dark-mode');
+                _originalSetItem('studyDeckDarkMode', 'false');
             }
             
             console.log('Data loaded from cloud');
@@ -432,18 +435,30 @@ const _keyMap = {
     'studyDeckPomodoroSessions': 'pomodoroSessions',
     'studyDeckPomodoroSettings': 'pomodoroSettings',
     'studyDeckActivityLog': 'activityLog',
-    'studyDeckDarkMode': 'darkMode',
     'studyDeckUserProfile': 'userProfile'
+    // Note: studyDeckDarkMode is NOT in this map - it uses real localStorage for instant loading
 };
 
+// Apply dark mode immediately on script load (before API verification)
+// This prevents the white flash
+(function applyDarkModeImmediately() {
+    const darkMode = localStorage.getItem('studyDeckDarkMode') === 'true';
+    if (darkMode) {
+        document.body.classList.add('dark-mode');
+    }
+    // Also set in cache
+    _cache.settings.darkMode = darkMode;
+})();
+
 localStorage.getItem = function(key) {
+    // Dark mode uses real localStorage for instant loading
+    if (key === 'studyDeckDarkMode') {
+        return _originalGetItem(key);
+    }
+    
     // Handle studyDeck keys from cache
     if (_keyMap[key]) {
         const cacheKey = _keyMap[key];
-        
-        if (cacheKey === 'darkMode') {
-            return _cache.settings.darkMode ? 'true' : 'false';
-        }
         
         if (cacheKey === 'userProfile') {
             const user = window.vieraAPI?.user;
@@ -469,22 +484,24 @@ localStorage.getItem = function(key) {
 };
 
 localStorage.setItem = function(key, value) {
+    // Dark mode: save to both real localStorage AND cache, then sync
+    if (key === 'studyDeckDarkMode') {
+        _originalSetItem(key, value);
+        _cache.settings.darkMode = value === 'true';
+        if (_cache.settings.darkMode) {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
+        if (window.vieraAPI?.isLoggedIn()) {
+            window.vieraAPI.scheduleSave();
+        }
+        return;
+    }
+    
     // Handle studyDeck keys - save to cache
     if (_keyMap[key]) {
         const cacheKey = _keyMap[key];
-        
-        if (cacheKey === 'darkMode') {
-            _cache.settings.darkMode = value === 'true';
-            if (_cache.settings.darkMode) {
-                document.body.classList.add('dark-mode');
-            } else {
-                document.body.classList.remove('dark-mode');
-            }
-            if (window.vieraAPI?.isLoggedIn()) {
-                window.vieraAPI.scheduleSave();
-            }
-            return;
-        }
         
         if (cacheKey === 'userProfile') {
             // User profile is managed by the API, ignore local sets
@@ -509,14 +526,22 @@ localStorage.setItem = function(key, value) {
 };
 
 localStorage.removeItem = function(key) {
+    // Dark mode: remove from both
+    if (key === 'studyDeckDarkMode') {
+        _originalRemoveItem(key);
+        _cache.settings.darkMode = false;
+        document.body.classList.remove('dark-mode');
+        if (window.vieraAPI?.isLoggedIn()) {
+            window.vieraAPI.scheduleSave();
+        }
+        return;
+    }
+    
     // Handle studyDeck keys - reset in cache
     if (_keyMap[key]) {
         const cacheKey = _keyMap[key];
         
-        if (cacheKey === 'darkMode') {
-            _cache.settings.darkMode = false;
-            document.body.classList.remove('dark-mode');
-        } else if (cacheKey !== 'userProfile') {
+        if (cacheKey !== 'userProfile') {
             if (Array.isArray(_cache[cacheKey])) {
                 _cache[cacheKey] = [];
             } else {
@@ -563,7 +588,7 @@ window.addEventListener('beforeunload', function() {
                 if (!window.location.pathname.endsWith('index.html') && 
                     !window.location.pathname.endsWith('index') &&
                     window.location.pathname !== '/') {
-                    window.location.href = 'index';
+                    window.location.href = '/';
                 }
             }
         } catch (error) {
@@ -577,9 +602,9 @@ window.addEventListener('beforeunload', function() {
         if (!window.location.pathname.endsWith('index.html') && 
             !window.location.pathname.endsWith('index') &&
             window.location.pathname !== '/') {
-            window.location.href = 'index';
+            window.location.href = '/';
         }
     }
 })();
 
-console.log('VieraStudy API v5 loaded (cloud-only storage with localStorage compatibility)');
+console.log('VieraStudy API v7 loaded (cloud-only storage with localStorage compatibility)');

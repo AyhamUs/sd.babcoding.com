@@ -237,8 +237,8 @@
             border-left: 3px solid #3b82f6;
         }
 
-        a[href="index"].nav-item.active,
-        a[href="index"].nav-item:hover {
+        a[href="/"].nav-item.active,
+        a[href="/"].nav-item:hover {
             color: #3b82f6;
         }
 
@@ -838,7 +838,7 @@
             </div>
             
             <nav class="nav-menu">
-                <a href="index" class="nav-item">
+                <a href="/" class="nav-item">
                     <i class="fas fa-home"></i>
                     <span>Home</span>
                 </a>
@@ -1128,7 +1128,7 @@
         }
     </style>
 
-    <script src="api.js?v=5"></script>
+    <script src="api.js?v=7"></script>
     <script>
         let expression = '';
         let currentMode = 'deg';
@@ -1396,7 +1396,7 @@
             localStorage.removeItem('studyDeckPomodoroSettings');
             localStorage.removeItem('studyDeckPomodoroStats');
             localStorage.removeItem('studyDeckEvents');
-            window.location.href = 'index';
+            window.location.href = '/';
         }
         
         // Close modal on background click

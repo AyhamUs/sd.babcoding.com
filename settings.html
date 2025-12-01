@@ -203,8 +203,8 @@
             border-left: 3px solid #3b82f6;
         }
 
-        a[href="index"].nav-item.active,
-        a[href="index"].nav-item:hover {
+        a[href="/"].nav-item.active,
+        a[href="/"].nav-item:hover {
             color: #3b82f6;
         }
 
@@ -923,7 +923,7 @@
             </div>
             
             <nav class="nav-menu">
-                <a href="index" class="nav-item">
+                <a href="/" class="nav-item">
                     <i class="fas fa-home" style="color: #3b82f6;"></i>
                     <span>Home</span>
                 </a>
@@ -1104,7 +1104,7 @@
         </div>
     </div>
 
-    <script src="api.js?v=5"></script>
+    <script src="api.js?v=7"></script>
     <script>
         // Notification Modal Functions
         function showNotification(message, type = 'success', title = null) {
@@ -1211,7 +1211,7 @@
                 document.getElementById('userName').textContent = fullName;
             } else {
                 // Redirect to index if no profile exists
-                window.location.href = 'index';
+                window.location.href = '/';
             }
         }
 
@@ -1269,7 +1269,7 @@
             if (confirmed) {
                 await vieraAPI.syncToCloud();
                 await vieraAPI.logout();
-                window.location.href = 'index';
+                window.location.href = '/';
             }
         }
 
@@ -1343,7 +1343,7 @@
             
             if (isTyping && e.key !== 'Escape') return;
             
-            if ((e.metaKey || e.ctrlKey) && e.key === 'h') { e.preventDefault(); window.location.href = 'index'; }
+            if ((e.metaKey || e.ctrlKey) && e.key === 'h') { e.preventDefault(); window.location.href = '/'; }
             if ((e.metaKey || e.ctrlKey) && e.key === 'f') { e.preventDefault(); window.location.href = 'flashcards'; }
             if ((e.metaKey || e.ctrlKey) && e.key === 't') { e.preventDefault(); window.location.href = 'todo'; }
             if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'N') { e.preventDefault(); window.location.href = 'notes'; }

@@ -2004,7 +2004,7 @@
         </div>
     </div>
 
-    <script src="api.js?v=8"></script>
+    <script src="api.js?v=9"></script>
     <script>
         // Notification Modal Functions
         function showNotification(message, type = 'success', title = null) {
@@ -2779,7 +2779,14 @@
 
         document.addEventListener('DOMContentLoaded', async function() {
             // Wait for API to be ready (data loaded from cloud)
-            await vieraAPI.ready;
+            const isLoggedIn = await vieraAPI.ready;
+            
+            // Redirect to login if not logged in
+            if (!isLoggedIn || !vieraAPI.isLoggedIn()) {
+                window.location.href = '/';
+                return;
+            }
+            
             initializeData();
             init();
         });

@@ -1,4 +1,4 @@
-// VieraStudy API Client v8 - Optimized for minimal requests
+// VieraStudy API Client v9 - Improved mobile support
 // All data stored in Cloudflare Workers KV, with aggressive caching
 
 const API_URL = 'https://vierastudy-api.ayhamissa416.workers.dev';
@@ -160,16 +160,23 @@ class VieraStudyAPI {
         }
         
         try {
+            // Add timeout for mobile - 10 second limit
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
+            
             const response = await fetch(`${API_URL}/verify`, {
                 method: 'GET',
-                headers: { 'Authorization': `Bearer ${this.token}` }
+                headers: { 'Authorization': `Bearer ${this.token}` },
+                signal: controller.signal
             });
+            
+            clearTimeout(timeoutId);
             
             if (!response.ok) {
                 this.token = null;
                 this.user = null;
-                localStorage.removeItem('vierastudy_token');
-                localStorage.removeItem('vierastudy_user');
+                _originalRemoveItem('vierastudy_token');
+                _originalRemoveItem('vierastudy_user');
                 _verifyCache = null;
                 _lastVerifyTime = 0;
                 return null;
@@ -178,7 +185,7 @@ class VieraStudyAPI {
             const data = await response.json();
             if (data.success && data.user) {
                 this.user = data.user;
-                localStorage.setItem('vierastudy_user', JSON.stringify(data.user));
+                _originalSetItem('vierastudy_user', JSON.stringify(data.user));
                 
                 // Cache the verification
                 _verifyCache = data.user;
@@ -193,6 +200,18 @@ class VieraStudyAPI {
             return null;
         } catch (error) {
             console.error('Verify error:', error);
+            // On timeout/network error, check if we have cached user data
+            // This helps with spotty mobile connections
+            if (this.user && _originalGetItem('vierastudy_user')) {
+                console.log('Using cached user data due to network error');
+                _verifyCache = this.user;
+                _lastVerifyTime = Date.now();
+                // Try to load cached data
+                if (!_cacheLoaded) {
+                    await this.loadData();
+                }
+                return this.user;
+            }
             return null;
         }
     }
@@ -222,10 +241,17 @@ class VieraStudyAPI {
         }
         
         try {
+            // Add timeout for mobile - 15 second limit for data load
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
+            
             const response = await fetch(`${API_URL}/data`, {
                 method: 'GET',
-                headers: { 'Authorization': `Bearer ${this.token}` }
+                headers: { 'Authorization': `Bearer ${this.token}` },
+                signal: controller.signal
             });
+            
+            clearTimeout(timeoutId);
             
             if (!response.ok) return null;
             const data = await response.json();
@@ -262,6 +288,13 @@ class VieraStudyAPI {
             return _cache;
         } catch (error) {
             console.error('Load data error:', error);
+            // On timeout, still mark as loaded to prevent infinite retries
+            // User can refresh to try again
+            if (error.name === 'AbortError') {
+                console.log('Data load timed out - using empty cache');
+                _cacheLoaded = true;
+                _lastLoadTime = Date.now();
+            }
             return null;
         }
     }
@@ -725,6 +758,11 @@ document.addEventListener('visibilitychange', function() {
 // Auto-initialize: verify session and load data on page load
 // This runs automatically when api.js loads
 (async function initializeSession() {
+    const isIndexPage = window.location.pathname.endsWith('index.html') || 
+                        window.location.pathname.endsWith('index') ||
+                        window.location.pathname === '/' ||
+                        window.location.pathname === '';
+    
     if (window.vieraAPI && window.vieraAPI.token) {
         try {
             // Verify the session is still valid
@@ -737,41 +775,42 @@ document.addEventListener('visibilitychange', function() {
                 // Clear invalid session to prevent stuck state
                 window.vieraAPI.token = null;
                 window.vieraAPI.user = null;
-                localStorage.removeItem('vierastudy_token');
-                localStorage.removeItem('vierastudy_user');
+                _originalRemoveItem('vierastudy_token');
+                _originalRemoveItem('vierastudy_user');
                 _readyResolve(false);
                 // Redirect to home if not on index page
-                if (!window.location.pathname.endsWith('index.html') && 
-                    !window.location.pathname.endsWith('index') &&
-                    window.location.pathname !== '/') {
+                if (!isIndexPage) {
                     window.location.href = '/';
                 }
             }
         } catch (error) {
             console.error('Session verification failed:', error);
-            // Clear invalid session on network failure to prevent stuck state
-            window.vieraAPI.token = null;
-            window.vieraAPI.user = null;
-            localStorage.removeItem('vierastudy_token');
-            localStorage.removeItem('vierastudy_user');
-            _readyResolve(false);
-            // Redirect to home if not on index page
-            if (!window.location.pathname.endsWith('index.html') && 
-                !window.location.pathname.endsWith('index') &&
-                window.location.pathname !== '/') {
-                window.location.href = '/';
+            // On network failure, try to use cached credentials if available
+            const cachedUser = window.vieraAPI.user;
+            if (cachedUser) {
+                console.log('Using cached credentials due to network error');
+                _readyResolve(true);
+            } else {
+                // Clear invalid session on network failure to prevent stuck state
+                window.vieraAPI.token = null;
+                window.vieraAPI.user = null;
+                _originalRemoveItem('vierastudy_token');
+                _originalRemoveItem('vierastudy_user');
+                _readyResolve(false);
+                // Redirect to home if not on index page
+                if (!isIndexPage) {
+                    window.location.href = '/';
+                }
             }
         }
     } else {
         // No token - resolve immediately as not logged in
         _readyResolve(false);
         // Redirect to home if not on index page and not logged in
-        if (!window.location.pathname.endsWith('index.html') && 
-            !window.location.pathname.endsWith('index') &&
-            window.location.pathname !== '/') {
+        if (!isIndexPage) {
             window.location.href = '/';
         }
     }
 })();
 
-console.log('VieraStudy API v8 loaded (optimized cloud sync - reduced API requests)');
+console.log('VieraStudy API v9 loaded (improved mobile support with timeouts)');

@@ -1184,7 +1184,7 @@
         }
     </style>
 
-    <script src="api.js?v=8"></script>
+    <script src="api.js?v=9"></script>
     <script>
         let equations = [];
         const colors = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
@@ -1573,7 +1573,14 @@
         
         document.addEventListener('DOMContentLoaded', async function() {
             // Wait for API to be ready (for dark mode and user profile)
-            await vieraAPI.ready;
+            const isLoggedIn = await vieraAPI.ready;
+            
+            // Redirect to login if not logged in
+            if (!isLoggedIn || !vieraAPI.isLoggedIn()) {
+                window.location.href = '/';
+                return;
+            }
+            
             init();
         });
 

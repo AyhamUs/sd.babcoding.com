@@ -1,7 +1,13 @@
-// VieraStudy API Client v10 - Fixed mobile navigation issues
+// VieraStudy API Client v11 - Fixed mobile localStorage issues
 // All data stored in Cloudflare Workers KV, with aggressive caching
 
 const API_URL = 'https://vierastudy-api.ayhamissa416.workers.dev';
+
+// IMPORTANT: Capture original localStorage methods FIRST, before anything else
+// This prevents issues on mobile where script execution order can vary
+const _originalGetItem = localStorage.getItem.bind(localStorage);
+const _originalSetItem = localStorage.setItem.bind(localStorage);
+const _originalRemoveItem = localStorage.removeItem.bind(localStorage);
 
 // In-memory cache for current session
 let _cache = {
@@ -39,8 +45,10 @@ const SYNC_MAX_DELAY = 10000; // Maximum 10 seconds before forced sync
 
 class VieraStudyAPI {
     constructor() {
-        this.token = localStorage.getItem('vierastudy_token');
-        this.user = JSON.parse(localStorage.getItem('vierastudy_user') || 'null');
+        // Use _originalGetItem to ensure we get the real localStorage values
+        this.token = _originalGetItem('vierastudy_token');
+        this.user = JSON.parse(_originalGetItem('vierastudy_user') || 'null');
+        console.log('[Mobile Debug] API Constructor - token exists:', !!this.token, 'user:', this.user?.firstName);
     }
 
     // Promise that resolves when data is ready
@@ -52,18 +60,22 @@ class VieraStudyAPI {
 
     async register(email, password, firstName, lastName) {
         try {
+            console.log('[Mobile Debug] Starting registration for:', email);
             const response = await fetch(`${API_URL}/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password, firstName, lastName })
             });
             const data = await response.json();
+            console.log('[Mobile Debug] Register response:', data.success, data.user?.firstName);
             
             if (data.success && data.token) {
                 this.token = data.token;
                 this.user = data.user;
-                localStorage.setItem('vierastudy_token', data.token);
-                localStorage.setItem('vierastudy_user', JSON.stringify(data.user));
+                // Use _originalSetItem to bypass any override issues on mobile
+                _originalSetItem('vierastudy_token', data.token);
+                _originalSetItem('vierastudy_user', JSON.stringify(data.user));
+                console.log('[Mobile Debug] Token stored after register');
                 _cacheLoaded = false;
                 _lastVerifyTime = Date.now();
                 _verifyCache = data.user;
@@ -77,18 +89,26 @@ class VieraStudyAPI {
 
     async login(email, password) {
         try {
+            console.log('[Mobile Debug] Starting login for:', email);
             const response = await fetch(`${API_URL}/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
             });
             const data = await response.json();
+            console.log('[Mobile Debug] Login response:', data.success, data.user?.firstName);
             
             if (data.success && data.token) {
                 this.token = data.token;
                 this.user = data.user;
-                localStorage.setItem('vierastudy_token', data.token);
-                localStorage.setItem('vierastudy_user', JSON.stringify(data.user));
+                // Use _originalSetItem to bypass any override issues on mobile
+                _originalSetItem('vierastudy_token', data.token);
+                _originalSetItem('vierastudy_user', JSON.stringify(data.user));
+                console.log('[Mobile Debug] Token stored, length:', data.token.length);
+                console.log('[Mobile Debug] User stored:', data.user.firstName, data.user.lastName);
+                // Verify it was stored
+                console.log('[Mobile Debug] Token readback:', _originalGetItem('vierastudy_token')?.substring(0, 20));
+                console.log('[Mobile Debug] User readback:', _originalGetItem('vierastudy_user')?.substring(0, 50));
                 _cacheLoaded = false;
                 _lastVerifyTime = Date.now();
                 _verifyCache = data.user;
@@ -123,8 +143,8 @@ class VieraStudyAPI {
         // Clear everything
         this.token = null;
         this.user = null;
-        localStorage.removeItem('vierastudy_token');
-        localStorage.removeItem('vierastudy_user');
+        _originalRemoveItem('vierastudy_token');
+        _originalRemoveItem('vierastudy_user');
         _cache = {
             flashcards: [],
             todos: [],
@@ -559,10 +579,7 @@ window.vieraAPI = new VieraStudyAPI();
 // ============ localStorage COMPATIBILITY LAYER ============
 // Override localStorage for studyDeck keys to use cloud cache instead
 // This allows existing code to work without modification
-
-const _originalGetItem = localStorage.getItem.bind(localStorage);
-const _originalSetItem = localStorage.setItem.bind(localStorage);
-const _originalRemoveItem = localStorage.removeItem.bind(localStorage);
+// NOTE: _originalGetItem, _originalSetItem, _originalRemoveItem are defined at top of file
 
 // Global sync function for backward compatibility
 // Forces an immediate save for reliability
@@ -826,4 +843,4 @@ document.addEventListener('visibilitychange', function() {
     }
 })();
 
-console.log('VieraStudy API v10 loaded (fixed mobile navigation)');
+console.log('VieraStudy API v11 loaded (fixed mobile localStorage)');

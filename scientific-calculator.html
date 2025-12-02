@@ -1168,7 +1168,7 @@
         }
     </style>
 
-    <script src="api.js?v=9"></script>
+    <script src="api.js?v=10"></script>
     <script>
         let expression = '';
         let currentMode = 'deg';
@@ -1450,10 +1450,10 @@
         
         document.addEventListener('DOMContentLoaded', async function() {
             // Wait for API to be ready (for dark mode and user profile)
-            const isLoggedIn = await vieraAPI.ready;
+            await vieraAPI.ready;
             
-            // Redirect to login if not logged in
-            if (!isLoggedIn || !vieraAPI.isLoggedIn()) {
+            // Only redirect if there's truly no token
+            if (!localStorage.getItem('vierastudy_token')) {
                 window.location.href = '/';
                 return;
             }

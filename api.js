@@ -1,4 +1,4 @@
-// VieraStudy API Client v9 - Improved mobile support
+// VieraStudy API Client v10 - Fixed mobile navigation issues
 // All data stored in Cloudflare Workers KV, with aggressive caching
 
 const API_URL = 'https://vierastudy-api.ayhamissa416.workers.dev';
@@ -159,6 +159,10 @@ class VieraStudyAPI {
             return _verifyCache;
         }
         
+        // If we have a cached user from localStorage, use it as fallback
+        const cachedUserStr = _originalGetItem('vierastudy_user');
+        const cachedUser = cachedUserStr ? JSON.parse(cachedUserStr) : null;
+        
         try {
             // Add timeout for mobile - 10 second limit
             const controller = new AbortController();
@@ -173,12 +177,28 @@ class VieraStudyAPI {
             clearTimeout(timeoutId);
             
             if (!response.ok) {
-                this.token = null;
-                this.user = null;
-                _originalRemoveItem('vierastudy_token');
-                _originalRemoveItem('vierastudy_user');
-                _verifyCache = null;
-                _lastVerifyTime = 0;
+                // Only clear credentials on explicit auth failure (401/403)
+                if (response.status === 401 || response.status === 403) {
+                    console.log('Token explicitly rejected by server');
+                    this.token = null;
+                    this.user = null;
+                    _originalRemoveItem('vierastudy_token');
+                    _originalRemoveItem('vierastudy_user');
+                    _verifyCache = null;
+                    _lastVerifyTime = 0;
+                    return null;
+                }
+                // For other errors (500, etc), use cached user if available
+                if (cachedUser) {
+                    console.log('Server error, using cached user');
+                    this.user = cachedUser;
+                    _verifyCache = cachedUser;
+                    _lastVerifyTime = Date.now();
+                    if (!_cacheLoaded) {
+                        await this.loadData();
+                    }
+                    return cachedUser;
+                }
                 return null;
             }
             
@@ -200,17 +220,18 @@ class VieraStudyAPI {
             return null;
         } catch (error) {
             console.error('Verify error:', error);
-            // On timeout/network error, check if we have cached user data
+            // On timeout/network error, use cached user data
             // This helps with spotty mobile connections
-            if (this.user && _originalGetItem('vierastudy_user')) {
-                console.log('Using cached user data due to network error');
-                _verifyCache = this.user;
+            if (cachedUser) {
+                console.log('Network error, using cached user data');
+                this.user = cachedUser;
+                _verifyCache = cachedUser;
                 _lastVerifyTime = Date.now();
-                // Try to load cached data
+                // Try to load data anyway
                 if (!_cacheLoaded) {
                     await this.loadData();
                 }
-                return this.user;
+                return cachedUser;
             }
             return null;
         }
@@ -778,10 +799,8 @@ document.addEventListener('visibilitychange', function() {
                 _originalRemoveItem('vierastudy_token');
                 _originalRemoveItem('vierastudy_user');
                 _readyResolve(false);
-                // Redirect to home if not on index page
-                if (!isIndexPage) {
-                    window.location.href = '/';
-                }
+                // Only redirect from index page - sub-pages will handle their own redirect
+                // This prevents race conditions on mobile
             }
         } catch (error) {
             console.error('Session verification failed:', error);
@@ -797,20 +816,14 @@ document.addEventListener('visibilitychange', function() {
                 _originalRemoveItem('vierastudy_token');
                 _originalRemoveItem('vierastudy_user');
                 _readyResolve(false);
-                // Redirect to home if not on index page
-                if (!isIndexPage) {
-                    window.location.href = '/';
-                }
+                // Only redirect from index page - sub-pages will handle their own redirect
             }
         }
     } else {
         // No token - resolve immediately as not logged in
         _readyResolve(false);
-        // Redirect to home if not on index page and not logged in
-        if (!isIndexPage) {
-            window.location.href = '/';
-        }
+        // Only redirect from index page - sub-pages will handle their own redirect
     }
 })();
 
-console.log('VieraStudy API v9 loaded (improved mobile support with timeouts)');
+console.log('VieraStudy API v10 loaded (fixed mobile navigation)');
